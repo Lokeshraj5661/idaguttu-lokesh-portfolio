@@ -24,27 +24,17 @@ function band(p, s0, s1, s2, s3) {
 const PROJECTS = [
   {
     icon: Network,
-    title: 'Autonomous Security',
-    desc: 'Phishing Email Detection System via Python, Scikit-Learn & NLP — 94% accuracy, sub-150ms real-time inference on AWS.',
-    tags: ['Python', 'Scikit-Learn', 'NLP', 'Flask', 'AWS'],
+    title: 'Asset Manager',
+    desc: 'A structured asset management system — data flows, tracking and inventory intelligence built for clarity and control.',
+    tags: ['Full-Stack', 'Data Flow', 'Dashboard'],
+    url: 'https://asset-manager--lugertarak39.replit.app/',
   },
   {
     icon: Share2,
     title: 'Realtime Architecture',
-    desc: '5-Star Hospitality & Reservation Platform via Next.js 14 & Supabase — 3D scrollytelling, WebSockets, Twilio SMS.',
-    tags: ['Next.js 14', 'React Three Fiber', 'Supabase', 'Twilio'],
-  },
-  {
-    icon: GitBranch,
-    title: 'Enterprise Systems',
-    desc: 'Employee Management System via React.js, Spring Boot & MySQL — full CRUD, secure REST APIs, role-based access.',
-    tags: ['React.js', 'Spring Boot', 'MySQL', 'REST'],
-  },
-  {
-    icon: Waves,
-    title: 'Generative Environments',
-    desc: 'Advanced prompt engineering & 4K/8K 3D visual generation — crafting immersive, intelligent aesthetic systems.',
-    tags: ['Prompt Eng.', 'Generative AI', '3D', 'WebGL'],
+    desc: '5-Star Hospitality & Reservation Platform — immersive 3D scrollytelling, realtime WebSockets and connected architecture.',
+    tags: ['Next.js 14', 'React Three Fiber', 'Supabase', 'Realtime'],
+    url: 'https://hospitality-gallery.preview.emergentagent.com/?utm_source=share',
   },
 ]
 
@@ -194,27 +184,36 @@ export default function App() {
             THINKS IN SYSTEMS.
           </p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-3xl pointer-events-auto">
           {PROJECTS.map((proj) => {
             const Icon = proj.icon
             return (
-              <div
+              <a
                 key={proj.title}
-                className="rounded-xl border border-white/10 bg-white/[0.03] backdrop-blur-sm p-5 hover:border-[#00E5FF]/40 transition-colors"
+                href={proj.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative block rounded-xl border border-white/10 bg-white/[0.03] backdrop-blur-sm p-6 hover:border-[#00E5FF]/50 hover:bg-white/[0.05] transition-all"
               >
-                <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[#00E5FF]/30 bg-[#00E5FF]/10 text-[#00E5FF]">
-                  <Icon className="h-5 w-5" />
+                <div className="flex items-start justify-between">
+                  <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-lg border border-[#00E5FF]/30 bg-[#00E5FF]/10 text-[#00E5FF]">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <ArrowUpRight className="h-5 w-5 text-white/30 transition-colors group-hover:text-[#00E5FF]" />
                 </div>
-                <h3 className="text-base font-medium mb-2">{proj.title}</h3>
+                <h3 className="text-lg font-medium mb-2">{proj.title}</h3>
                 <p className="text-xs leading-relaxed text-white/50">{proj.desc}</p>
-                <div className="mt-3 flex flex-wrap gap-1.5">
+                <div className="mt-4 flex flex-wrap gap-1.5">
                   {proj.tags.map((t) => (
-                    <span key={t} className="rounded-full bg-white/5 px-2 py-0.5 text-[9px] tracking-wider text-white/40">
+                    <span key={t} className="rounded-full bg-white/5 px-2.5 py-0.5 text-[9px] tracking-wider text-white/40">
                       {t}
                     </span>
                   ))}
                 </div>
-              </div>
+                <span className="mt-4 inline-flex items-center gap-1 text-[10px] tracking-[0.2em] text-[#00E5FF]/70 group-hover:text-[#00E5FF]">
+                  VIEW PROJECT <ArrowUpRight className="h-3 w-3" />
+                </span>
+              </a>
             )
           })}
         </div>
