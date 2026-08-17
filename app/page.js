@@ -143,11 +143,14 @@ export default function App() {
       >
         <div className="absolute bottom-24 left-6 md:left-12 max-w-md">
           <p className="text-[11px] tracking-[0.3em] text-[#00E5FF] mb-4">// AI &amp; DATA SCIENCE</p>
-          <h1 className="text-4xl md:text-6xl font-light leading-[1.05] tracking-tight">
-            Engineering meets
+          <h1 className="text-5xl md:text-7xl font-semibold leading-[0.95] tracking-tight mb-4">
+            IDAGUTTU
             <br />
-            intelligence in 3D space.
+            LOKESH
           </h1>
+          <p className="text-xl md:text-2xl font-light leading-snug text-white/70">
+            Engineering meets intelligence in 3D space.
+          </p>
         </div>
         <div className="absolute bottom-24 right-6 md:right-12 max-w-xs text-right">
           <p className="text-[11px] leading-relaxed tracking-[0.15em] text-white/50">
