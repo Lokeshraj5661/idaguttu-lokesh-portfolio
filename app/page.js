@@ -2,16 +2,16 @@
 
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import dynamic from 'next/dynamic'
-import { ArrowUpRight, ArrowDown, Network, Share2, GitBranch, Waves, Linkedin, Github, X as XIcon, Loader2, Check } from 'lucide-react'
+import { ArrowUpRight, ArrowDown, Network, Share2, GitBranch, Waves, Linkedin, Github, Instagram, Loader2, Check } from 'lucide-react'
 
 const Scene3D = dynamic(() => import('@/components/Scene3D'), { ssr: false })
 
 const RESUME_URL =
-  'https://customer-assets-agu9un31.emergentagent.net/job_08e4b34e-4e39-4950-9f44-5ada89e66f09/artifacts/69mby1ur_lokesh%27s%20remsume%20-%20Copy.pdf'
+  'https://customer-assets-jai6qajn.emergentagent.net/job_ai-engineer-3d-5/artifacts/5dc67h7b_2300089004%20Idaguttu%20Lokesh.pdf'
 const EMAIL = '2300089004aids@gmail.com'
-const LINKEDIN = 'https://linkedin.com/in/lokesh-idaguttu-93a70b36a/'
+const LINKEDIN = 'https://www.linkedin.com/in/lokesh-idaguttu-93a70b36a?utm_source=share_via&utm_content=profile&utm_medium=member_android'
 const GITHUB = 'https://github.com/Lokeshraj5661'
-const XLINK = 'https://x.com'
+const INSTAGRAM = 'https://www.instagram.com/__lokesh_i?igsh=bjN5djBwZ2k3djR6'
 
 // opacity band helper: ramp up s0->s1, hold s1->s2, ramp down s2->s3
 function band(p, s0, s1, s2, s3) {
@@ -254,14 +254,14 @@ export default function App() {
         <div className="pointer-events-auto absolute bottom-0 left-0 right-0 flex flex-col md:flex-row items-center justify-between gap-3 border-t border-white/10 px-6 md:px-12 py-5 text-[10px] tracking-[0.2em] text-white/40">
           <span>© 2026 — IDAGUTTU LOKESH. ALL RIGHTS RESERVED</span>
           <div className="flex items-center gap-5">
-            <a href={LINKEDIN} target="_blank" rel="noopener noreferrer" className="hover:text-[#00E5FF] transition-colors">
-              <Linkedin className="h-4 w-4" />
-            </a>
-            <a href={GITHUB} target="_blank" rel="noopener noreferrer" className="hover:text-[#00E5FF] transition-colors">
+            <a href={GITHUB} target="_blank" rel="noopener noreferrer" aria-label="GitHub" className="hover:text-[#00E5FF] transition-colors">
               <Github className="h-4 w-4" />
             </a>
-            <a href={XLINK} target="_blank" rel="noopener noreferrer" className="hover:text-[#00E5FF] transition-colors">
-              <XIcon className="h-4 w-4" />
+            <a href={LINKEDIN} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="hover:text-[#00E5FF] transition-colors">
+              <Linkedin className="h-4 w-4" />
+            </a>
+            <a href={INSTAGRAM} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="hover:text-[#00E5FF] transition-colors">
+              <Instagram className="h-4 w-4" />
             </a>
           </div>
         </div>
