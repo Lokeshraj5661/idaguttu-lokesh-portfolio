@@ -25,6 +25,7 @@ const PROJECTS = [
   {
     icon: Network,
     title: 'Asset Manager',
+    label: 'Primary',
     desc: 'A structured asset management system — data flows, tracking and inventory intelligence built for clarity and control.',
     tags: ['Full-Stack', 'Data Flow', 'Dashboard'],
     url: 'https://asset-manager--lugertarak39.replit.app/',
@@ -32,16 +33,30 @@ const PROJECTS = [
   {
     icon: Share2,
     title: 'Realtime Architecture',
+    label: 'Platform',
     desc: '5-Star Hospitality & Reservation Platform — immersive 3D scrollytelling, realtime WebSockets and connected architecture.',
     tags: ['Next.js 14', 'React Three Fiber', 'Supabase', 'Realtime'],
     url: 'https://hospitality-gallery.preview.emergentagent.com/?utm_source=share',
   },
+  {
+    icon: GitBranch,
+    title: 'Phishing Email Detection',
+    label: 'AI / NLP',
+    desc: 'A machine-learning system that flags phishing emails in real time using Python, Scikit-Learn & NLP feature pipelines.',
+    tags: ['Python', 'Scikit-Learn', 'NLP', 'ML'],
+    url: 'https://asset-manager--thorloke45.replit.app/',
+  },
+]
+
+const SKILLS = [
+  'React.js', 'Next.js 14', 'Spring Boot', 'Python', 'Scikit-Learn',
+  'NLP', 'AWS', 'MySQL', 'Supabase', 'HTML/CSS/JS',
 ]
 
 const NAV = [
   { label: 'ABOUT', target: 0.30 },
   { label: 'PROJECTS', target: 0.58 },
-  { label: 'SKILLS', target: 0.58 },
+  { label: 'SKILLS', target: 0.80 },
 ]
 
 export default function App() {
@@ -184,12 +199,12 @@ export default function App() {
             THINKS IN SYSTEMS.
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-3xl pointer-events-auto">
-          {PROJECTS.map((proj) => {
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl pointer-events-auto">
+          {PROJECTS.map((proj, i) => {
             const Icon = proj.icon
             return (
               <a
-                key={proj.title}
+                key={proj.title + i}
                 href={proj.url}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -201,7 +216,12 @@ export default function App() {
                   </div>
                   <ArrowUpRight className="h-5 w-5 text-white/30 transition-colors group-hover:text-[#00E5FF]" />
                 </div>
-                <h3 className="text-lg font-medium mb-2">{proj.title}</h3>
+                <div className="flex items-center gap-2 mb-2">
+                  <h3 className="text-lg font-medium">{proj.title}</h3>
+                  <span className="rounded-full border border-[#00E5FF]/30 px-2 py-0.5 text-[8px] tracking-[0.15em] text-[#00E5FF]/80">
+                    {proj.label}
+                  </span>
+                </div>
                 <p className="text-xs leading-relaxed text-white/50">{proj.desc}</p>
                 <div className="mt-4 flex flex-wrap gap-1.5">
                   {proj.tags.map((t) => (
@@ -224,12 +244,22 @@ export default function App() {
         className="fixed inset-0 z-20 pointer-events-none flex items-center justify-center text-center"
         style={{ opacity: philoO, transition: 'opacity 0.15s linear', visibility: philoO <= 0.01 ? 'hidden' : 'visible' }}
       >
-        <div className="max-w-2xl px-6">
+        <div className="max-w-3xl px-6">
           <h2 className="text-4xl md:text-6xl font-light leading-tight">
             Code isn&apos;t just static.
             <br />
             <span className="text-[#00E5FF]">It learns, evolves, and adapts intelligently.</span>
           </h2>
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-2.5 pointer-events-auto">
+            {SKILLS.map((s) => (
+              <span
+                key={s}
+                className="rounded-full border border-white/15 bg-white/[0.04] px-4 py-1.5 text-[11px] tracking-[0.12em] text-white/70 backdrop-blur-sm hover:border-[#00E5FF]/50 hover:text-[#00E5FF] transition-colors"
+              >
+                {s}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -244,26 +274,28 @@ export default function App() {
             <br />
             with Lokesh
           </h2>
-          <button
-            onClick={() => setOpen(true)}
-            className="pointer-events-auto mt-8 rounded-full bg-white px-8 py-3 text-[12px] font-medium tracking-[0.2em] text-black hover:bg-[#00E5FF] transition-colors"
-          >
-            GET IN TOUCH
-          </button>
-        </div>
-        <div className="pointer-events-auto absolute bottom-0 left-0 right-0 flex flex-col md:flex-row items-center justify-between gap-3 border-t border-white/10 px-6 md:px-12 py-5 text-[10px] tracking-[0.2em] text-white/40">
-          <span>© 2026 — IDAGUTTU LOKESH. ALL RIGHTS RESERVED</span>
-          <div className="flex items-center gap-5">
-            <a href={GITHUB} target="_blank" rel="noopener noreferrer" aria-label="GitHub" className="hover:text-[#00E5FF] transition-colors">
-              <Github className="h-4 w-4" />
-            </a>
-            <a href={LINKEDIN} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="hover:text-[#00E5FF] transition-colors">
-              <Linkedin className="h-4 w-4" />
-            </a>
-            <a href={INSTAGRAM} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="hover:text-[#00E5FF] transition-colors">
-              <Instagram className="h-4 w-4" />
-            </a>
+          <div className="pointer-events-auto mt-8 flex items-center gap-6">
+            <button
+              onClick={() => setOpen(true)}
+              className="rounded-full bg-white px-8 py-3 text-[12px] font-medium tracking-[0.2em] text-black hover:bg-[#00E5FF] transition-colors"
+            >
+              GET IN TOUCH
+            </button>
+            <div className="flex items-center gap-4 text-white/60">
+              <a href={GITHUB} target="_blank" rel="noopener noreferrer" aria-label="GitHub" className="hover:text-[#00E5FF] transition-colors">
+                <Github className="h-6 w-6" />
+              </a>
+              <a href={LINKEDIN} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="hover:text-[#00E5FF] transition-colors">
+                <Linkedin className="h-6 w-6" />
+              </a>
+              <a href={INSTAGRAM} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="hover:text-[#00E5FF] transition-colors">
+                <Instagram className="h-6 w-6" />
+              </a>
+            </div>
           </div>
+        </div>
+        <div className="pointer-events-auto absolute bottom-0 left-0 right-0 border-t border-white/10 px-6 md:px-12 py-5 text-[10px] tracking-[0.2em] text-white/40">
+          © 2026 — IDAGUTTU LOKESH. ALL RIGHTS RESERVED
         </div>
       </div>
 
