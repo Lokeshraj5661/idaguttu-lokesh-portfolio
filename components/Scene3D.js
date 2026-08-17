@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useRef } from 'react'
+import React, { useMemo, useRef, useState, useEffect } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { EffectComposer, Bloom } from '@react-three/postprocessing'
 import * as THREE from 'three'
@@ -214,12 +214,42 @@ function Particles({ progressRef }) {
 }
 
 /* ------------------------------ Scene ------------------------------ */
+function hasWebGL() {
+  try {
+    const c = document.createElement('canvas')
+    return !!(window.WebGLRenderingContext && (c.getContext('webgl2') || c.getContext('webgl')))
+  } catch (e) {
+    return false
+  }
+}
+
 export default function Scene3D({ progressRef }) {
+  const [ready, setReady] = useState(false)
+  const [webgl, setWebgl] = useState(true)
+
+  // Only mount the Canvas on the client, after the first paint, so we never
+  // create a WebGL context during SSR/hydration transients (avoids the R3F
+  // "reading 'alpha'" crash when a second/null context is handed to the composer).
+  useEffect(() => {
+    setWebgl(hasWebGL())
+    const id = requestAnimationFrame(() => setReady(true))
+    return () => cancelAnimationFrame(id)
+  }, [])
+
+  if (!ready) return <div className="h-full w-full bg-black" />
+  if (!webgl) {
+    return (
+      <div className="flex h-full w-full items-center justify-center bg-black">
+        <div className="h-64 w-64 rounded-full bg-[#00E5FF]/20 blur-3xl" />
+      </div>
+    )
+  }
+
   return (
     <Canvas
       camera={{ position: [0, 0, 9], fov: 55 }}
       dpr={[1, 2]}
-      gl={{ antialias: true, alpha: false }}
+      gl={{ antialias: true, powerPreference: 'high-performance' }}
       onCreated={({ gl }) => gl.setClearColor('#000000', 1)}
     >
       <Particles progressRef={progressRef} />

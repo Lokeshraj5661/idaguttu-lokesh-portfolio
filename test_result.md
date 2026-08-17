@@ -124,7 +124,7 @@ frontend:
   - task: "3D particle scroll-jacking experience + overlays"
     implemented: true
     working: true
-    file: "/app/components/Scene3D.js, /app/app/page.js"
+    file: "/app/components/Scene3D.js, /app/app/page.js, /app/next.config.js"
     stuck_count: 0
     priority: "high"
     needs_retesting: false
@@ -132,6 +132,12 @@ frontend:
         -working: true
         -agent: "main"
         -comment: "Verified visually via screenshots: hero toroid with bloom, projects faded+grid, footer portal. Upgraded to React 19 + R3F v9 to fix ReactCurrentOwner crash."
+        -working: "NA"
+        -agent: "main"
+        -comment: "BUG REPORTED by user: Runtime TypeError 'Cannot read properties of null (reading alpha)' at Canvas (Scene3D.js). Root cause: Next.js reactStrictMode default true -> Canvas double-mounts in dev -> second WebGL context is null -> EffectComposer crashes reading getContextAttributes().alpha. FIX: (1) set reactStrictMode:false in next.config.js, (2) client-mount gate in Scene3D (render Canvas only after requestAnimationFrame post-mount), (3) WebGL support detection with graceful fallback, (4) removed fragile gl alpha:false. Needs retest to confirm no runtime error and all scenes render."
+        -working: true
+        -agent: "testing"
+        -comment: "✅ BUG FIX VERIFIED - Comprehensive testing completed using external URL (https://ai-engineer-3d-5.preview.emergentagent.com). PRIMARY SUCCESS: NO 'alpha' or 'ReactCurrentOwner' runtime errors detected. NO error overlay. NO page errors. Canvas element present and WebGL scene renders successfully. Hero shows glowing neon-blue particle toroid after 4s. Scroll-jacking (600vh) tested at 30%, 58%, 78%, 99%: (1) About section ✅ 'Lokesh is an AI & Data Science engineer' text found, (2) Projects section ✅ heading found + TWO clickable cards ('Asset Manager' and 'Realtime Architecture') verified, (3) Philosophy section ✅ 'Code isn't just static' text found, (4) Footer section ✅ 'Deploy with Lokesh' visible in screenshot + 'GET IN TOUCH' button + copyright text found. Contact modal ✅ opens with name/email/message fields. Console logs: only benign GPU ReadPixels warnings (normal for WebGL). All core functionality working correctly. The fix (reactStrictMode:false + client-mount gate + WebGL detection) successfully resolved the alpha error."
 
 metadata:
   created_by: "main_agent"
@@ -141,13 +147,15 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Contact form API (POST/GET /api/contact)"
+    - "3D particle scroll-jacking experience + overlays"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
 agent_communication:
     -agent: "main"
-    -message: "Only backend to test: /api/contact POST (valid -> success:true with contact object having uuid id; missing fields -> 400) and GET (array). Base URL uses /api prefix. DB via MONGO_URL/DB_NAME."
+    -message: "Verify the reported runtime error is GONE: load the site (external base URL), confirm NO 'Cannot read properties of null (reading alpha)' console/overlay error and the WebGL <canvas> renders a glowing particle toroid on the hero. Then scroll through the page (it is a 600vh scroll-jacking single page) and confirm the 5 overlay scenes appear without errors: Hero, About, Projects (2 clickable cards), Philosophy, Footer (Deploy with Lokesh + GET IN TOUCH). Capture any browser console errors."
     -agent: "testing"
     -message: "Backend testing complete. Contact form API fully functional - all 4 test scenarios passed. Created /app/backend_test.py for comprehensive API testing. No issues found. Ready for main agent to summarize and finish."
+    -agent: "testing"
+    -message: "✅ ALL TESTING COMPLETE - Bug fix verification successful. The reported 'alpha' runtime error is FIXED and no longer occurs. WebGL scene renders correctly with all 5 scroll sections working (Hero toroid, About tunnel, Projects cloud with 2 cards, Philosophy sunburst, Footer portal). Contact modal functional. Zero runtime errors, zero page errors. All test criteria met. Ready for main agent to summarize and finish."
