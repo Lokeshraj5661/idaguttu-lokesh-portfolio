@@ -18,7 +18,37 @@ function buildShapes() {
   const cloud = new Float32Array(COUNT * 3)
   const sun = new Float32Array(COUNT * 3)
   const portal = new Float32Array(COUNT * 3)
+  const heroAlt = new Float32Array(COUNT * 3)
   const rand = new Float32Array(COUNT)
+
+  // ---- HERO ALT: hypercube / tesseract edge cloud (time-morph target) ----
+  const cubeVerts = (s) => {
+    const v = []
+    for (const x of [-1, 1]) for (const y of [-1, 1]) for (const z of [-1, 1]) v.push([x * s, y * s, z * s])
+    return v
+  }
+  const rot = (v, a) => {
+    // rotate around Y then X by angle a (for the tesseract inner-cube offset)
+    const c = Math.cos(a), s = Math.sin(a)
+    let [x, y, z] = v
+    let x1 = x * c + z * s, z1 = -x * s + z * c
+    let y2 = y * c - z1 * s, z2 = y * s + z1 * c
+    return [x1, y2, z2]
+  }
+  const outer = cubeVerts(2.2)
+  const inner = cubeVerts(1.25).map((v) => rot(v, 0.7))
+  const edgesOf = (verts) => {
+    const e = []
+    for (let a = 0; a < 8; a++)
+      for (let b = a + 1; b < 8; b++) {
+        let diff = 0
+        for (let k = 0; k < 3; k++) if (Math.sign(verts[a][k]) !== Math.sign(verts[b][k])) diff++
+        if (diff === 1) e.push([verts[a], verts[b]])
+      }
+    return e
+  }
+  const hcEdges = [...edgesOf(outer), ...edgesOf(inner)]
+  for (let k = 0; k < 8; k++) hcEdges.push([outer[k], inner[k]]) // connectors
 
   const tilt = 0.62
   const cosT = Math.cos(tilt)
@@ -28,6 +58,15 @@ function buildShapes() {
   for (let i = 0; i < COUNT; i++) {
     const i3 = i * 3
     rand[i] = Math.random()
+
+    // ---- HERO ALT (hypercube edge sampling) ----
+    {
+      const e = hcEdges[Math.floor(Math.random() * hcEdges.length)]
+      const tt = Math.random()
+      heroAlt[i3] = e[0][0] + (e[1][0] - e[0][0]) * tt + (Math.random() - 0.5) * 0.06
+      heroAlt[i3 + 1] = e[0][1] + (e[1][1] - e[0][1]) * tt + (Math.random() - 0.5) * 0.06
+      heroAlt[i3 + 2] = e[0][2] + (e[1][2] - e[0][2]) * tt + (Math.random() - 0.5) * 0.06
+    }
 
     // ---- TORUS (hero) centered, tilted ----
     {
@@ -89,7 +128,7 @@ function buildShapes() {
     }
   }
 
-  return { torus, tunnel, cloud, sun, portal, rand }
+  return { torus, tunnel, cloud, sun, portal, heroAlt, rand }
 }
 
 /* ------------------------------ Shaders ------------------------------ */
@@ -103,11 +142,14 @@ const vertex = `
   attribute vec3 aCloud;
   attribute vec3 aSun;
   attribute vec3 aPortal;
+  attribute vec3 aHeroAlt;
   attribute float aRandom;
+  uniform float uHeroMix;
   varying float vR;
   void main() {
+    vec3 heroPos = mix(position, aHeroAlt, uHeroMix);
     vec3 pA; vec3 pB;
-    if (uSeg < 0.5) { pA = position; pB = aTunnel; }
+    if (uSeg < 0.5) { pA = heroPos; pB = aTunnel; }
     else if (uSeg < 1.5) { pA = aTunnel; pB = aCloud; }
     else if (uSeg < 2.5) { pA = aCloud; pB = aSun; }
     else { pA = aSun; pB = aPortal; }
@@ -146,6 +188,7 @@ function smoothstep(t) {
 /* ---------------------------- Particles ---------------------------- */
 function Particles({ progressRef }) {
   const pointsRef = useRef()
+  const heroTimeRef = useRef(0)
   const shapes = useMemo(() => buildShapes(), [])
 
   const geometry = useMemo(() => {
@@ -155,6 +198,7 @@ function Particles({ progressRef }) {
     g.setAttribute('aCloud', new THREE.BufferAttribute(shapes.cloud, 3))
     g.setAttribute('aSun', new THREE.BufferAttribute(shapes.sun, 3))
     g.setAttribute('aPortal', new THREE.BufferAttribute(shapes.portal, 3))
+    g.setAttribute('aHeroAlt', new THREE.BufferAttribute(shapes.heroAlt, 3))
     g.setAttribute('aRandom', new THREE.BufferAttribute(shapes.rand, 1))
     return g
   }, [shapes])
@@ -169,6 +213,7 @@ function Particles({ progressRef }) {
         uPixel: { value: typeof window !== 'undefined' ? Math.min(window.devicePixelRatio, 2) : 1 },
         uColor: { value: NEON.clone() },
         uOpacity: { value: 1 },
+        uHeroMix: { value: 0 },
       },
       vertexShader: vertex,
       fragmentShader: fragment,
@@ -197,6 +242,13 @@ function Particles({ progressRef }) {
     // dim during projects (cloud) phase, peak at p=0.55
     const g = Math.exp(-Math.pow((p - 0.55) / 0.11, 2))
     m.uniforms.uOpacity.value = 1 - 0.72 * g
+    // TIME-BASED HERO MORPH: after 3s (before scrolling), toroid -> hypercube over ~0.8s
+    if (p < 0.04 && m.uniforms.uHeroMix.value < 1) {
+      heroTimeRef.current += delta
+      if (heroTimeRef.current > 3) {
+        m.uniforms.uHeroMix.value = Math.min(1, m.uniforms.uHeroMix.value + delta / 0.8)
+      }
+    }
     if (pointsRef.current) {
       pointsRef.current.rotation.z += delta * 0.045
       pointsRef.current.rotation.y = Math.sin(m.uniforms.uTime.value * 0.12) * 0.25
