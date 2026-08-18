@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import dynamic from 'next/dynamic'
+import { gsap } from 'gsap'
 import { ArrowUpRight, ArrowDown, Network, Share2, GitBranch, Waves, Linkedin, Github, Instagram, Loader2, Check } from 'lucide-react'
 
 const Scene3D = dynamic(() => import('@/components/Scene3D'), { ssr: false })
@@ -143,11 +144,7 @@ export default function App() {
       >
         <div className="absolute bottom-24 left-6 md:left-12 max-w-md">
           <p className="text-[11px] tracking-[0.3em] text-[#00E5FF] mb-4">// AI &amp; DATA SCIENCE</p>
-          <h1 className="text-5xl md:text-7xl font-semibold leading-[0.95] tracking-tight mb-4">
-            IDAGUTTU
-            <br />
-            LOKESH
-          </h1>
+          <NameReveal />
           <p className="text-xl md:text-2xl font-light leading-snug text-white/70">
             Engineering meets intelligence in 3D space.
           </p>
@@ -308,6 +305,54 @@ export default function App() {
       {/* Contact modal */}
       {open && <ContactModal onClose={() => setOpen(false)} />}
     </main>
+  )
+}
+
+function NameReveal() {
+  const ref = useRef(null)
+  useEffect(() => {
+    if (!ref.current) return
+    const letters = ref.current.querySelectorAll('[data-letter]')
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        letters,
+        {
+          opacity: 0,
+          filter: 'blur(14px)',
+          x: () => (Math.random() - 0.5) * 320,
+          y: () => (Math.random() - 0.5) * 240,
+          rotate: () => (Math.random() - 0.5) * 60,
+          scale: 0.4,
+        },
+        {
+          opacity: 1,
+          filter: 'blur(0px)',
+          x: 0,
+          y: 0,
+          rotate: 0,
+          scale: 1,
+          duration: 1.2,
+          ease: 'power3.out',
+          stagger: { each: 0.05, from: 'random' },
+          delay: 0.25,
+        }
+      )
+    }, ref)
+    return () => ctx.revert()
+  }, [])
+
+  const renderWord = (word) =>
+    word.split('').map((ch, i) => (
+      <span key={i} data-letter className="inline-block">
+        {ch}
+      </span>
+    ))
+
+  return (
+    <h1 ref={ref} className="text-5xl md:text-7xl font-semibold leading-[0.95] tracking-tight mb-4">
+      <span className="block">{renderWord('IDAGUTTU')}</span>
+      <span className="block">{renderWord('LOKESH')}</span>
+    </h1>
   )
 }
 

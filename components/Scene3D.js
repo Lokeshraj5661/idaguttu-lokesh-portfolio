@@ -19,6 +19,7 @@ function buildShapes() {
   const sun = new Float32Array(COUNT * 3)
   const portal = new Float32Array(COUNT * 3)
   const heroAlt = new Float32Array(COUNT * 3)
+  const vortex = new Float32Array(COUNT * 3)
   const rand = new Float32Array(COUNT)
 
   // ---- HERO ALT: hypercube / tesseract edge cloud (time-morph target) ----
@@ -66,6 +67,16 @@ function buildShapes() {
       heroAlt[i3] = e[0][0] + (e[1][0] - e[0][0]) * tt + (Math.random() - 0.5) * 0.06
       heroAlt[i3 + 1] = e[0][1] + (e[1][1] - e[0][1]) * tt + (Math.random() - 0.5) * 0.06
       heroAlt[i3 + 2] = e[0][2] + (e[1][2] - e[0][2]) * tt + (Math.random() - 0.5) * 0.06
+    }
+
+    // ---- VORTEX (swirling 3-arm spiral galaxy) ----
+    {
+      const rr = Math.pow(Math.random(), 0.5) * 3.0
+      const arm = Math.floor(Math.random() * 3)
+      const theta = arm * ((Math.PI * 2) / 3) + rr * 1.6 + (Math.random() - 0.5) * 0.28
+      vortex[i3] = Math.cos(theta) * rr
+      vortex[i3 + 1] = Math.sin(theta) * rr
+      vortex[i3 + 2] = (Math.random() - 0.5) * 0.6 + Math.sin(rr * 3.0) * 0.25
     }
 
     // ---- TORUS (hero) centered, tilted ----
@@ -128,7 +139,7 @@ function buildShapes() {
     }
   }
 
-  return { torus, tunnel, cloud, sun, portal, heroAlt, rand }
+  return { torus, tunnel, cloud, sun, portal, heroAlt, vortex, rand }
 }
 
 /* ------------------------------ Shaders ------------------------------ */
@@ -143,11 +154,19 @@ const vertex = `
   attribute vec3 aSun;
   attribute vec3 aPortal;
   attribute vec3 aHeroAlt;
+  attribute vec3 aVortex;
   attribute float aRandom;
-  uniform float uHeroMix;
+  uniform float uHeroA;
+  uniform float uHeroB;
+  uniform float uHeroT;
   varying float vR;
+  vec3 heroShape(float idx) {
+    if (idx < 0.5) return position;
+    else if (idx < 1.5) return aHeroAlt;
+    return aVortex;
+  }
   void main() {
-    vec3 heroPos = mix(position, aHeroAlt, uHeroMix);
+    vec3 heroPos = mix(heroShape(uHeroA), heroShape(uHeroB), uHeroT);
     vec3 pA; vec3 pB;
     if (uSeg < 0.5) { pA = heroPos; pB = aTunnel; }
     else if (uSeg < 1.5) { pA = aTunnel; pB = aCloud; }
@@ -199,6 +218,7 @@ function Particles({ progressRef }) {
     g.setAttribute('aSun', new THREE.BufferAttribute(shapes.sun, 3))
     g.setAttribute('aPortal', new THREE.BufferAttribute(shapes.portal, 3))
     g.setAttribute('aHeroAlt', new THREE.BufferAttribute(shapes.heroAlt, 3))
+    g.setAttribute('aVortex', new THREE.BufferAttribute(shapes.vortex, 3))
     g.setAttribute('aRandom', new THREE.BufferAttribute(shapes.rand, 1))
     return g
   }, [shapes])
@@ -213,7 +233,9 @@ function Particles({ progressRef }) {
         uPixel: { value: typeof window !== 'undefined' ? Math.min(window.devicePixelRatio, 2) : 1 },
         uColor: { value: NEON.clone() },
         uOpacity: { value: 1 },
-        uHeroMix: { value: 0 },
+        uHeroA: { value: 0 },
+        uHeroB: { value: 1 },
+        uHeroT: { value: 0 },
       },
       vertexShader: vertex,
       fragmentShader: fragment,
@@ -242,12 +264,17 @@ function Particles({ progressRef }) {
     // dim during projects (cloud) phase, peak at p=0.55
     const g = Math.exp(-Math.pow((p - 0.55) / 0.11, 2))
     m.uniforms.uOpacity.value = 1 - 0.72 * g
-    // TIME-BASED HERO MORPH: after 3s (before scrolling), toroid -> hypercube over ~0.8s
-    if (p < 0.04 && m.uniforms.uHeroMix.value < 1) {
+    // TIME-BASED HERO SHAPE CYCLE: toroid -> hypercube -> vortex -> ... (while not scrolled)
+    if (p < 0.04) {
       heroTimeRef.current += delta
-      if (heroTimeRef.current > 3) {
-        m.uniforms.uHeroMix.value = Math.min(1, m.uniforms.uHeroMix.value + delta / 0.8)
-      }
+      const hold = 2.2, morph = 0.95, segLen = hold + morph
+      const phase = heroTimeRef.current
+      const idx = Math.floor(phase / segLen) % 3
+      const lt = (phase % segLen) - hold
+      const tt = lt < 0 ? 0 : Math.min(1, lt / morph)
+      m.uniforms.uHeroA.value = idx
+      m.uniforms.uHeroB.value = (idx + 1) % 3
+      m.uniforms.uHeroT.value = smoothstep(tt)
     }
     if (pointsRef.current) {
       pointsRef.current.rotation.z += delta * 0.045
