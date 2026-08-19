@@ -319,7 +319,10 @@ export default function App() {
       {/* Scroll spacer */}
       <div style={{ height: '600vh' }} />
 
-      {/* Contact modal */}
+      {/* Persistent AI entry point: always above the 3D background, including after scroll. */}
+      {!aiOpen && <PortfolioAILauncher onOpen={() => setAiOpen(true)} />}
+
+      {/* Chatbot and contact modals */}
       {open && <ContactModal onClose={() => setOpen(false)} />}
       {aiOpen && <PortfolioAIModal onClose={() => setAiOpen(false)} />}
     </main>
@@ -457,6 +460,21 @@ function ContactModal({ onClose }) {
 }
 
 
+function PortfolioAILauncher({ onOpen }) {
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      aria-label="Open Portfolio AI chatbot"
+      aria-haspopup="dialog"
+      className="pointer-events-auto fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-full border border-[#00E5FF]/60 bg-[#031015]/95 px-5 py-3 text-[11px] font-medium tracking-[0.18em] text-[#00E5FF] shadow-[0_0_30px_rgba(0,229,255,0.2)] backdrop-blur-md transition-all hover:bg-[#00E5FF] hover:text-black"
+    >
+      <Sparkles className="h-4 w-4" />
+      ASK PORTFOLIO AI
+    </button>
+  )
+}
+
 function PortfolioAIModal({ onClose }) {
   const [question, setQuestion] = useState('')
   const [answer, setAnswer] = useState('')
@@ -492,7 +510,7 @@ function PortfolioAIModal({ onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/75 backdrop-blur-sm p-4" onClick={onClose}>
       <div
         role="dialog"
         aria-modal="true"
