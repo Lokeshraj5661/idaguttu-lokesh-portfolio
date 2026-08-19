@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import dynamic from 'next/dynamic'
 import { gsap } from 'gsap'
-import { ArrowUpRight, ArrowDown, Network, Share2, GitBranch, Waves, Linkedin, Github, Instagram, Loader2, Check } from 'lucide-react'
+import { ArrowUpRight, ArrowDown, Network, Share2, GitBranch, Waves, Linkedin, Github, Instagram, Loader2, Check, Sparkles } from 'lucide-react'
 
 const Scene3D = dynamic(() => import('@/components/Scene3D'), { ssr: false })
 
@@ -64,6 +64,7 @@ export default function App() {
   const progressRef = useRef(0)
   const [p, setP] = useState(0)
   const [open, setOpen] = useState(false)
+  const [aiOpen, setAiOpen] = useState(false)
 
   useEffect(() => {
     let raf = 0
@@ -156,12 +157,21 @@ export default function App() {
           </p>
         </div>
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 pointer-events-auto">
-          <button
-            onClick={() => scrollTo(0.58)}
-            className="rounded-full border border-[#00E5FF]/50 bg-[#00E5FF]/10 px-6 py-2.5 text-[11px] tracking-[0.25em] text-[#00E5FF] hover:bg-[#00E5FF]/20 transition-colors"
-          >
-            EXPLORE PORTFOLIO
-          </button>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <button
+              onClick={() => scrollTo(0.58)}
+              className="rounded-full border border-[#00E5FF]/50 bg-[#00E5FF]/10 px-6 py-2.5 text-[11px] tracking-[0.25em] text-[#00E5FF] hover:bg-[#00E5FF]/20 transition-colors"
+            >
+              EXPLORE PORTFOLIO
+            </button>
+            <button
+              onClick={() => setAiOpen(true)}
+              className="flex items-center gap-2 rounded-full border border-white/25 bg-black/40 px-5 py-2.5 text-[11px] tracking-[0.2em] text-white/80 hover:border-[#00E5FF]/60 hover:text-[#00E5FF] transition-colors"
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+              ASK PORTFOLIO AI
+            </button>
+          </div>
           <div className="flex items-center gap-2 text-[10px] tracking-[0.3em] text-white/40">
             SCROLL DOWN <ArrowDown className="h-3 w-3 animate-bounce" />
           </div>
@@ -274,12 +284,19 @@ export default function App() {
             <br />
             with Lokesh
           </h2>
-          <div className="pointer-events-auto mt-8 flex items-center gap-6">
+          <div className="pointer-events-auto mt-8 flex flex-wrap items-center gap-4">
             <button
               onClick={() => setOpen(true)}
               className="rounded-full bg-white px-8 py-3 text-[12px] font-medium tracking-[0.2em] text-black hover:bg-[#00E5FF] transition-colors"
             >
               GET IN TOUCH
+            </button>
+            <button
+              onClick={() => setAiOpen(true)}
+              className="flex items-center gap-2 rounded-full border border-[#00E5FF]/50 bg-[#00E5FF]/10 px-6 py-3 text-[12px] font-medium tracking-[0.16em] text-[#00E5FF] hover:bg-[#00E5FF]/20 transition-colors"
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+              ASK PORTFOLIO AI
             </button>
             <div className="flex items-center gap-4 text-white/60">
               <a href={GITHUB} target="_blank" rel="noopener noreferrer" aria-label="GitHub" className="hover:text-[#00E5FF] transition-colors">
@@ -304,6 +321,7 @@ export default function App() {
 
       {/* Contact modal */}
       {open && <ContactModal onClose={() => setOpen(false)} />}
+      {aiOpen && <PortfolioAIModal onClose={() => setAiOpen(false)} />}
     </main>
   )
 }
@@ -433,6 +451,90 @@ function ContactModal({ onClose }) {
             </div>
           </form>
         )}
+      </div>
+    </div>
+  )
+}
+
+
+function PortfolioAIModal({ onClose }) {
+  const [question, setQuestion] = useState('')
+  const [answer, setAnswer] = useState('')
+  const [status, setStatus] = useState('idle') // idle | thinking | error
+  const [error, setError] = useState('')
+
+  const ask = async (e) => {
+    e.preventDefault()
+    const value = question.trim()
+    if (value.length < 3 || value.length > 500) {
+      setError('Ask a question between 3 and 500 characters.')
+      setStatus('error')
+      return
+    }
+
+    setStatus('thinking')
+    setError('')
+    setAnswer('')
+    try {
+      const res = await fetch('/api/portfolio-ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: value }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data.error || 'The assistant is temporarily unavailable.')
+      setAnswer(data.answer || 'I could not find an answer for that question.')
+      setStatus('idle')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong.')
+      setStatus('error')
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4" onClick={onClose}>
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="portfolio-ai-title"
+        className="w-full max-w-lg rounded-2xl border border-[#00E5FF]/25 bg-[#050505] p-8 shadow-[0_0_80px_rgba(0,229,255,0.12)]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="mb-6 flex items-start justify-between gap-5">
+          <div>
+            <p className="mb-1 flex items-center gap-2 text-[11px] tracking-[0.3em] text-[#00E5FF]"><Sparkles className="h-3.5 w-3.5" /> PORTFOLIO AI</p>
+            <h3 id="portfolio-ai-title" className="text-2xl font-light">Ask about Lokesh&apos;s work.</h3>
+          </div>
+          <button type="button" onClick={onClose} aria-label="Close portfolio AI" className="text-white/40 hover:text-white">×</button>
+        </div>
+        <p className="mb-5 text-sm leading-relaxed text-white/50">Ask about skills, projects, or the systems behind this experience.</p>
+        <form onSubmit={ask} className="space-y-4">
+          <textarea
+            required
+            minLength={3}
+            maxLength={500}
+            rows={4}
+            value={question}
+            disabled={status === 'thinking'}
+            aria-label="Question about the portfolio"
+            placeholder="Which project uses NLP?"
+            onChange={(e) => setQuestion(e.target.value)}
+            className="w-full resize-none rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3 text-sm outline-none focus:border-[#00E5FF]/50 disabled:opacity-50"
+          />
+          <div className="flex items-center justify-between gap-4">
+            <span className="text-[10px] tracking-wider text-white/30">{question.length}/500</span>
+            <button
+              type="submit"
+              disabled={status === 'thinking' || question.trim().length < 3}
+              className="flex items-center gap-2 rounded-full bg-white px-6 py-2.5 text-[12px] font-medium tracking-[0.15em] text-black transition-colors hover:bg-[#00E5FF] disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {status === 'thinking' && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+              {status === 'thinking' ? 'THINKING' : 'ASK AI'}
+            </button>
+          </div>
+        </form>
+        {status === 'error' && <p role="alert" className="mt-5 text-sm text-red-400">{error}</p>}
+        {answer && <div aria-live="polite" className="mt-6 rounded-xl border border-[#00E5FF]/15 bg-[#00E5FF]/[0.04] p-5 text-sm leading-relaxed text-white/80">{answer}</div>}
       </div>
     </div>
   )
