@@ -97,9 +97,9 @@ export default function App() {
   const footO = band(p, 0.88, 0.94, 1.1, 1.2)
 
   return (
-    <main className="relative bg-black text-white">
-      {/* Fixed 3D canvas */}
-      <div className="fixed inset-0 z-0">
+    <main className="relative isolate bg-black text-white">
+      {/* Three.js background: visually behind content and never intercepts UI clicks. */}
+      <div className="pointer-events-none fixed inset-0 z-0" aria-hidden="true">
         <Scene3D progressRef={progressRef} />
       </div>
 
