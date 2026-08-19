@@ -10,7 +10,7 @@ import os
 from datetime import datetime
 
 # Read base URL from environment
-BASE_URL = "https://zip-extractor-63.preview.emergentagent.com"
+BASE_URL = "https://ai-engineer-3d-5.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 def print_test_header(test_name):

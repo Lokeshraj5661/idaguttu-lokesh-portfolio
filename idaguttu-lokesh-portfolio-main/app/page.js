@@ -37,7 +37,7 @@ const PROJECTS = [
     label: 'Platform',
     desc: '5-Star Hospitality & Reservation Platform — immersive 3D scrollytelling, realtime WebSockets and connected architecture.',
     tags: ['Next.js 14', 'React Three Fiber', 'Supabase', 'Realtime'],
-    url: 'https://zip-extractor-63.preview.emergentagent.com/?utm_source=share',
+    url: 'https://hospitality-gallery.preview.emergentagent.com/?utm_source=share',
   },
   {
     icon: GitBranch,
